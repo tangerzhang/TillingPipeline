@@ -120,3 +120,6 @@ open(OUT, "> stat.txt") or die"";
 		}
 close OUT;
 
+system("rm run_SOAPsnp.sh");
+system("rm ref.fa*");
+
