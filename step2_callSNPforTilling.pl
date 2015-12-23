@@ -33,7 +33,7 @@ gunzip in.mapping.soap.gz
 iTools SOAPtools msort -k8 -kn9 in.mapping.soap -o in.sort.soap
 iTools SOAPtools rmdup -InPut in.sort.soap -OutPut out.rmdup.soap
 gunzip out.rmdup.soap.gz
-soapsnp -i out.rmdup.soap -d ref.fa -o out.cns -t -u -q -L 150
+soapsnp -z ! -i out.rmdup.soap -d ref.fa -o out.cns -t -u -q -L 150
 iTools CNStools ExtractCns -InPut out.cns -OutPut SNP.cns
 gunzip SNP.cns.gz
 iTools CNStools FilterCns -InPut SNP.cns -OutPut SNP.filter1.cns -MinQual 20 -MaxCP 2 -MinDist 5 -MinDepth 10 -MaxDepth 150 
