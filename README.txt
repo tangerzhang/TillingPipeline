@@ -1,9 +1,7 @@
-# SOAPsnp based Tilling analysis pipeline
-
 A. Prerequisites
 1. install bwa
 2. install samtools
-3. install SOAP snp
+3. install SOAP2 and SOAPsnp
 4. install iTools
 5. install SnpEff and configure your reference
 

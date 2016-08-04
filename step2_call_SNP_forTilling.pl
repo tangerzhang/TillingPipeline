@@ -21,24 +21,27 @@ if (!defined $opt_g) {
 $ref_genome = $opt_g;
 $cmd = "cp -s $ref_genome ./ref.fa";
 system($cmd);
-system("bwa index ref.fa");
+system("2bwt-builder ref.fa");
+system("samtools faidx ref.fa");
 
 $run_SOAPsnp = "#!bin/bash
-bwa aln -o 0 -t 6 -f in1.sai ref.fa in1.fq
-bwa aln -o 0 -t 6 -f in2.sai ref.fa in2.fq
-bwa sampe -a 300 -f in.mapping.bwa.sam ref.fa in1.sai in2.sai in1.fq in2.fq
-samtools view -bS in.mapping.bwa.sam -o in.mapping.bwa.bam
-iTools SOAPtools Xam2Soap -InBam in.mapping.bwa.bam -OutPut in.mapping.soap
-gunzip in.mapping.soap.gz
+
+soap -p 20 -m 300 -x 800 -v 3 -s 50 -g 0 -M 4 -D ref.fa.index -a in1.fq -b in2.fq -o in.mapping.soap -2 tmp.se.soap
 iTools SOAPtools msort -k8 -kn9 in.mapping.soap -o in.sort.soap
 iTools SOAPtools rmdup -InPut in.sort.soap -OutPut out.rmdup.soap
 gunzip out.rmdup.soap.gz
-soapsnp -z ! -i out.rmdup.soap -d ref.fa -o out.cns -t -u -q -L 150
+soapsnp -i out.rmdup.soap -d ref.fa -o out.cns -t -u -q -L 150
 iTools CNStools ExtractCns -InPut out.cns -OutPut SNP.cns
 gunzip SNP.cns.gz
 iTools CNStools FilterCns -InPut SNP.cns -OutPut SNP.filter1.cns -MinQual 20 -MaxCP 2 -MinDist 5 -MinDepth 10 -MaxDepth 150 
 gunzip SNP.filter1.cns.gz
-awk '\$15<=0.05' SNP.filter1.cns > SNP.filter2.cns
+awk '\$15>0.05' SNP.filter1.cns > SNP.filter2.cns
+
+iTools SOAPtools Soap2Sam -InSoap in.mapping.soap -OutSam in.mapping.sam -Pair
+gunzip in.mapping.sam.gz
+samtools view -bt ref.fa.fai in.mapping.sam > in.mapping.bam
+samtools sort -@ 10 -o in.sort.bam in.mapping.bam
+
 ";
 
 open(OUT, "> run_SOAPsnp.sh") or die"";
@@ -54,9 +57,12 @@ while(my $file = glob "*.R1.fq.gz"){
 		$cmd = "cp $fq_2 in2.fq.gz"; system($cmd);
 		system("gunzip in1.fq.gz"); system("gunzip in2.fq.gz"); 
 		system("sh run_SOAPsnp.sh");
+		$bam_final = $ind.".mapping.bam";
+		system("mv in.sort.bam ./$bam_final");
 		$outfile = $ind.".filter.snp";
 		system("mv SNP.filter2.cns ./$outfile");
-		system("rm *.soap"); system("rm *.bam");
+		system("rm *.soap"); 
+#		system("rm *.bam");
 		system("rm in*"); system("rm *cns")
 		}
 	}
@@ -122,4 +128,3 @@ close OUT;
 
 system("rm run_SOAPsnp.sh");
 system("rm ref.fa*");
-
