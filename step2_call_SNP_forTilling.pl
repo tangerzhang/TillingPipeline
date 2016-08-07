@@ -128,3 +128,4 @@ close OUT;
 
 system("rm run_SOAPsnp.sh");
 system("rm ref.fa*");
+system("ls *.bam|xargs -I{} samtools index {}");
