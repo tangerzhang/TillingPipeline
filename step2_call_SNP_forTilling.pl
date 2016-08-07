@@ -26,14 +26,14 @@ system("samtools faidx ref.fa");
 
 $run_SOAPsnp = "#!bin/bash
 
-soap -p 20 -m 300 -x 800 -v 3 -s 50 -g 0 -M 4 -D ref.fa.index -a in1.fq -b in2.fq -o in.mapping.soap -2 tmp.se.soap
+soap -p 20 -m 300 -x 800 -v 1 -s 50 -g 0 -M 4 -D ref.fa.index -a in1.fq -b in2.fq -o in.mapping.soap -2 tmp.se.soap
 iTools SOAPtools msort -k8 -kn9 in.mapping.soap -o in.sort.soap
 iTools SOAPtools rmdup -InPut in.sort.soap -OutPut out.rmdup.soap
 gunzip out.rmdup.soap.gz
 soapsnp -i out.rmdup.soap -d ref.fa -o out.cns -t -u -q -L 150
 iTools CNStools ExtractCns -InPut out.cns -OutPut SNP.cns
 gunzip SNP.cns.gz
-iTools CNStools FilterCns -InPut SNP.cns -OutPut SNP.filter1.cns -MinQual 20 -MaxCP 2 -MinDist 5 -MinDepth 10 -MaxDepth 150 
+iTools CNStools FilterCns -InPut SNP.cns -OutPut SNP.filter1.cns -MinQual 36 -MaxCP 2 -MinDist 5 -MinDepth 10 -MaxDepth 150 
 gunzip SNP.filter1.cns.gz
 awk '\$15>0.05' SNP.filter1.cns > SNP.filter2.cns
 
