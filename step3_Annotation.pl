@@ -22,6 +22,35 @@ if ((!defined $opt_v) || (!defined $opt_d)) {
         
     }
 
+my %countdb;
+my $count = 0;
+while(my $file = glob "*.filter.snp"){
+	next if (-f $file and -z _);
+	$count++;
+	open(my $fh, $file) or die"";
+	while(<$fh>){
+		chomp;
+		@data = split(/\s+/,$_);
+		$chrn = $data[0];
+		$posi = $data[1];
+		$refN = $data[2];
+		$altN = $data[3];
+		$key  = $chrn.",".$posi;
+		$countdb{$key}++;
+		}
+	close $fh;
+	}
+my $num_of_file = $count;
+####For debug
+
+open(OUT, ">count.snp.txt") or die"";
+foreach my $key (sort keys %countdb){
+	$ratio = $countdb{$key}/$num_of_file;
+	$ratio = sprintf("%.2f",$ratio);
+	print OUT "$key	$countdb{$key}	$ratio\n";
+	}
+close OUT;
+
 open(OUT, "> SNP.vcf") or die"";
 print OUT "\#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT\n";
 while(my $file = glob "*.filter.snp"){
@@ -38,6 +67,10 @@ while(my $file = glob "*.filter.snp"){
 		$posi = $data[1];
 		$refN = $data[2];
 		$altN = $data[3];
+		$key  = $chrn.",".$posi;
+		$ratio = $countdb{$key}/$num_of_file;
+		$ratio = sprintf("%.2f",$ratio);
+		next if($ratio > 0.1);
 		print OUT "$chrn	$posi	$snp_id	$refN	$altN	qual	PASS	$outfile	.\n";
 		}
 	close $fh;

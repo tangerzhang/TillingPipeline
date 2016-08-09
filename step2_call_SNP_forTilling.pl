@@ -33,7 +33,7 @@ gunzip out.rmdup.soap.gz
 soapsnp -i out.rmdup.soap -d ref.fa -o out.cns -t -u -q -L 150
 iTools CNStools ExtractCns -InPut out.cns -OutPut SNP.cns
 gunzip SNP.cns.gz
-iTools CNStools FilterCns -InPut SNP.cns -OutPut SNP.filter1.cns -MinQual 20 -MaxCP 2 -MinDist 5 -MinDepth 10 -MaxDepth 150 
+iTools CNStools FilterCns -InPut SNP.cns -OutPut SNP.filter1.cns -MinQual 30 -MaxCP 2 -MinDist 5 -MinDepth 10 -MaxDepth 150 
 gunzip SNP.filter1.cns.gz
 awk '\$15>0.05' SNP.filter1.cns > SNP.filter2.cns
 
